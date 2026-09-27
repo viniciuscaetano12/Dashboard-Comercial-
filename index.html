@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="description" content="Dashboard de inteligência comercial da Sabor & Vida: faturamento, pedidos, produtos, regiões e performance de vendedores.">
+
+    <title>Sabor & Vida | Inteligência Comercial</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js" defer></script>
+    <script src="app.js" defer></script>
+</head>
+
+<body>
+
+    <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo</a>
+
+    <aside class="sidebar">
+
+        <div class="logo">
+            <div class="logo-icon" aria-hidden="true">A</div>
+            <div>
+                <h2>SABOR & VIDA</h2>
+                <span>Inteligência Comercial</span>
+            </div>
+        </div>
+
+        <nav aria-label="Navegação principal">
+            <a href="#" class="nav-link active" data-view="dashboard" aria-current="page">
+                <span aria-hidden="true">📊</span> Dashboard
+            </a>
+            <a href="#" class="nav-link" data-view="produtos">
+                <span aria-hidden="true">📦</span> Produtos
+            </a>
+            <a href="#" class="nav-link" data-view="clientes">
+                <span aria-hidden="true">👥</span> Clientes
+            </a>
+            <a href="#" class="nav-link" data-view="vendedores">
+                <span aria-hidden="true">👨‍💼</span> Vendedores
+            </a>
+            <a href="#" class="nav-link" data-view="regioes">
+                <span aria-hidden="true">📍</span> Regiões
+            </a>
+        </nav>
+
+        <div class="sidebar-footer">
+            <span class="live-dot" id="status-dot" aria-hidden="true"></span>
+            <div>
+                <strong id="status-label">Conectando à API...</strong>
+                <span id="last-update">—</span>
+            </div>
+        </div>
+    </aside>
+
+
+    <main class="main" id="conteudo-principal">
+
+        <header class="header">
+            <div>
+                <span class="breadcrumb" id="breadcrumb">Arcofoods / Dashboard</span>
+                <h1 id="titulo-view">Dashboard Comercial</h1>
+                <p id="subtitulo-view">Visão geral da performance comercial da empresa</p>
+            </div>
+
+            <div class="filters">
+                <label class="visually-hidden" for="periodo">Período de análise</label>
+                <select id="periodo" name="periodo">
+                    <option value="12">Últimos 12 meses</option>
+                    <option value="6" selected>Últimos 6 meses</option>
+                    <option value="3">Últimos 3 meses</option>
+                </select>
+
+                <label class="visually-hidden" for="categoria">Categoria de produto</label>
+                <select id="categoria" name="categoria">
+                    <option value="Todas">Todas as categorias</option>
+                    <option value="Alimentos">Alimentos</option>
+                    <option value="Limpeza">Produtos de Limpeza</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Higiene">Higiene</option>
+                </select>
+
+                <button type="button" class="btn-export" id="btn-export">
+                    <span aria-hidden="true">⬇️</span> Exportar CSV
+                </button>
+            </div>
+        </header>
+
+        <!-- ============ VIEW: DASHBOARD ============ -->
+        <section class="view" id="view-dashboard">
+
+            <section class="kpis" id="kpi-grid" aria-label="Indicadores principais"></section>
+
+            <section class="grid-two">
+                <div class="card chart-card">
+                    <div class="card-title">
+                        <div>
+                            <h3>Evolução do faturamento</h3>
+                            <span>Desempenho mensal</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="faturamentoChart" role="img" aria-label="Gráfico de linha da evolução do faturamento mensal"></canvas>
+                    </div>
+                </div>
+
+                <div class="card chart-card">
+                    <div class="card-title">
+                        <div>
+                            <h3>Vendas por categoria</h3>
+                            <span>Participação no faturamento</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="categoriaChart" role="img" aria-label="Gráfico de rosca com a participação de cada categoria no faturamento"></canvas>
+                    </div>
+                </div>
+            </section>
+
+            <section class="card meta-card" aria-label="Meta comercial">
+                <div class="card-title">
+                    <div>
+                        <h3>Performance comercial</h3>
+                        <span>Meta x realizado</span>
+                    </div>
+                    <strong class="meta-total" id="meta-total">—</strong>
+                </div>
+                <div class="meta-bar" role="progressbar" id="meta-bar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" aria-label="Percentual da meta atingido">
+                    <div class="meta-progress" id="meta-progress"></div>
+                </div>
+                <div class="meta-values">
+                    <span>Realizado: <strong id="meta-realizado">—</strong></span>
+                    <span>Meta: <strong id="meta-meta">—</strong></span>
+                </div>
+            </section>
+
+            <section class="insights" aria-label="Insights de inteligência comercial">
+                <div class="insight-title">
+                    <div>
+                        <h2><span aria-hidden="true">🔎</span> Insights de Inteligência Comercial</h2>
+                        <p>Principais oportunidades identificadas nos dados</p>
+                    </div>
+                </div>
+                <div class="insight-grid" id="insight-grid"></div>
+            </section>
+
+        </section>
+
+        <!-- ============ VIEW: PRODUTOS ============ -->
+        <section class="view is-hidden" id="view-produtos">
+            <div class="card">
+                <div class="card-title">
+                    <div>
+                        <h3>Ranking de produtos</h3>
+                        <span>Faturamento por produto no período selecionado</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <caption class="visually-hidden">Produtos ordenados por faturamento</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Produto</th>
+                                <th scope="col">Categoria</th>
+                                <th scope="col">Faturamento</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-produtos"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ VIEW: CLIENTES ============ -->
+        <section class="view is-hidden" id="view-clientes">
+            <section class="kpis" id="kpi-clientes" aria-label="Indicadores de clientes"></section>
+
+            <section class="insights" aria-label="Insights de clientes">
+                <div class="insight-title">
+                    <div>
+                        <h2><span aria-hidden="true">🔎</span> Insights de Clientes</h2>
+                        <p>Comportamento e oportunidades identificadas na base</p>
+                    </div>
+                </div>
+                <div class="insight-grid" id="insight-grid-clientes"></div>
+            </section>
+        </section>
+
+        <!-- ============ VIEW: VENDEDORES ============ -->
+        <section class="view is-hidden" id="view-vendedores">
+            <div class="card">
+                <div class="card-title">
+                    <div>
+                        <h3>Performance dos vendedores</h3>
+                        <span>Ranking comercial</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <caption class="visually-hidden">Vendas, meta e atingimento por vendedor</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">Vendedor</th>
+                                <th scope="col">Vendas</th>
+                                <th scope="col">Meta</th>
+                                <th scope="col">Atingimento</th>
+                                <th scope="col">Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabela-vendedores"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ VIEW: REGIÕES ============ -->
+        <section class="view is-hidden" id="view-regioes">
+            <div class="card chart-card">
+                <div class="card-title">
+                    <div>
+                        <h3>Faturamento por região</h3>
+                        <span>Distribuição geográfica</span>
+                    </div>
+                </div>
+                <div class="chart-container">
+                    <canvas id="regiaoChart" role="img" aria-label="Gráfico de barras do faturamento por região"></canvas>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">
+                    <div>
+                        <h3>Detalhamento por região</h3>
+                        <span>Valores exatos por estado</span>
+                    </div>
+                </div>
+                <div class="table-wrapper">
+                    <table>
+                        <caption class="visually-hidden">Faturamento por região</caption>
+                        <thead>
+                            <tr><th scope="col">Região</th><th scope="col">Faturamento</th></tr>
+                        </thead>
+                        <tbody id="tabela-regioes"></tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            Arcofoods — Dashboard de Inteligência Comercial
+            <span>Protótipo demonstrativo • Dados mockados servidos via API (com fallback local de simulação)</span>
+        </footer>
+
+    </main>
+
+</body>
+</html>

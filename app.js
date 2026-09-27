@@ -1,11 +1,11 @@
 /**
- * ARCOFOODS — Dashboard de Inteligência Comercial
+ * SABOR & VIDA — Dashboard de Inteligência Comercial
  *
  * Camada de API: tenta falar com um backend Go real em /api/v1/*.
  * Se não houver servidor respondendo (como nesta pré-visualização),
  * cai automaticamente para um simulador local que devolve o MESMO
  * formato de dados que os handlers em internal/handlers/*.go retornam,
- * incluindo uma pequena latência artificial para imitar uma rede real.
+ * incluindo imitar uma rede real.
  */
 (function () {
     'use strict';
